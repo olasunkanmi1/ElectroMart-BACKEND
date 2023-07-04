@@ -16,7 +16,7 @@
     "paths": {
       "@controllers": ["controllers"],
       "@db": ["db/connect"],
-      "@errors": ["errors"],
+      "@errors": ["errors/index"],
       "@middlewares": ["middlewares"],
       "@models": ["models"],
       "@routes": ["routes"],
