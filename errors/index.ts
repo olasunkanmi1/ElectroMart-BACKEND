@@ -1,7 +1,8 @@
-import BadRequestError from "./bad-request.js"
-import NotFoundError from "./not-found.js"
-import UnAuthenticatedError from "./unauthenticated.js"
-import UnAuthorizededError from "./unauthorized.js"
-import ConflictError from "./conflict.js"
+import BadRequestError from "./bad-request"
+import NotFoundError from "./not-found"
+import UnAuthenticatedError from "./unauthenticated"
+import UnAuthorizededError from "./unauthorized"
+import ConflictError from "./conflict"
+import ExpiredError from "./expired"
 
-export { BadRequestError, NotFoundError, UnAuthenticatedError, UnAuthorizededError, ConflictError }
+export { BadRequestError, NotFoundError, UnAuthenticatedError, UnAuthorizededError, ConflictError, ExpiredError }

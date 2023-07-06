@@ -1,13 +1,13 @@
 import { StatusCodes } from "http-status-codes";
 import CustomAPIError from "./custom-api";
 
-class BadRequestError extends CustomAPIError{
+class ExpiredError extends CustomAPIError{
     statusCode: StatusCodes;
-    
+
     constructor(message: string) {
         super(message)
-        this.statusCode = StatusCodes.BAD_REQUEST
+        this.statusCode = StatusCodes.GONE
     }
 }
 
-export default BadRequestError
+export default ExpiredError

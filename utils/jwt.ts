@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { AttachCookiesToResponseProps, CreateJWTProps } from '@types';
+import { AttachCookiesToResponseProps, CreateJWTProps } from '../types';
 
 const createJWT = ({ payload }: CreateJWTProps) => {
     const token = jwt.sign(payload, process.env.JWT_SECRET!);

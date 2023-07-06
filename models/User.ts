@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 import isEmail from 'validator/lib/isEmail';
 import bcrypt from "bcryptjs";
-import { UserModel } from '@types'
+import { UserModel } from '../types'
 
 const UserSchema = new Schema<UserModel>({
     firstName: {
@@ -35,7 +35,6 @@ const UserSchema = new Schema<UserModel>({
         required: [true, 'Please provide password'],
         minLength: 6,
         select: false,
-        lowercase: true
     },
     verificationCode: String,
     isVerified: { type: Boolean, default: false },
@@ -48,21 +47,23 @@ const UserSchema = new Schema<UserModel>({
         type: Number,
         required: [true, 'Please provide phone number'],
     },
-    verified: Date,
     passwordToken: String,
-    passwordTokenExpirationDate: Date,
+    passwordTokenExpirationDate: {} //empty object {} means same as Schema.Types.Mixed i.e a mixed type 
+}, {
+    timestamps: true,
 });
 
 UserSchema.pre('save', async function() {
     if(!this.isModified('password')) return;
 
     const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt)
+    const lowercasePassword = this.password.toLowerCase();
+    this.password = await bcrypt.hash(lowercasePassword, salt)
 });
 
 UserSchema.methods.comparePassword = async function (candidatePassword: string) {
-    const isMatch = await bcrypt.compare(candidatePassword, this.password);
+    const isMatch = await bcrypt.compare(candidatePassword.toLowerCase(), this.password);
     return isMatch;
 };
 
-export default model<UserModel>('User', UserSchema)
+export default model<UserModel>('User', UserSchema);

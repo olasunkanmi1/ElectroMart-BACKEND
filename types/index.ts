@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 
 export interface CustomError extends Error {
     statusCode?: number;
@@ -21,21 +21,21 @@ export interface User {
     isAdmin: boolean;
     dateOfBirth: Date;
     phoneNo: number;
-    userId: Types.ObjectId;
 }
 
-export interface UserModel extends User {
+export interface UserModel  extends  User {
     password: string;
     verificationCode: string;
     verified: Date;
     passwordToken: string;
-    passwordTokenExpirationDate: Date;
+    passwordTokenExpirationDate: Date | null;
+    comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
 export interface CheckPermissionsProps {
     requestUser: {
         isAdmin: string;
-        userId: Types.ObjectId
+        userId: string
     }
     resourceUserId: Types.ObjectId;
 }
@@ -68,3 +68,5 @@ export interface SendVerificationEmailProps {
     email: string;
     verificationCode: string;
 }
+
+export type ControllerFunction = (req: Request, res: Response) => Promise<any>;
