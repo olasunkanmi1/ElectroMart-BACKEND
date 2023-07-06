@@ -20,7 +20,7 @@ export interface User {
     isVerified: boolean;
     isAdmin: boolean;
     dateOfBirth: Date;
-    phoneNo: number;
+    phoneNo: string;
 }
 
 export interface UserModel  extends  User {
@@ -33,9 +33,9 @@ export interface UserModel  extends  User {
 }
 
 export interface CheckPermissionsProps {
-    requestUser: {
-        isAdmin: string;
-        userId: string
+    requestUser?: {
+        isAdmin: boolean;
+        userId: Types.ObjectId;
     }
     resourceUserId: Types.ObjectId;
 }

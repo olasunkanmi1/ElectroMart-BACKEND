@@ -10,7 +10,7 @@ const UserSchema = new Schema<UserModel>({
         minLength: 3,
         maxLength: 20,
         trim: true,
-        set: (value: string) => value.charAt(0).toUpperCase() + value.slice(1),
+        set: (value: string) => value.charAt(0).toUpperCase() + value.slice(1).toLowerCase(),
     },
     lastName: {
         type: String,
@@ -18,7 +18,7 @@ const UserSchema = new Schema<UserModel>({
         minLength: 3,
         maxLength: 20,
         trim: true,
-        set: (value: string) => value.charAt(0).toUpperCase() + value.slice(1),
+        set: (value: string) => value.charAt(0).toUpperCase() + value.slice(1).toLowerCase(),
     },
     email: {
         type: String,
@@ -44,7 +44,8 @@ const UserSchema = new Schema<UserModel>({
         required: [true, 'Please provide date of birth'],
     },
     phoneNo: {
-        type: Number,
+        type: String,
+        unique: true,
         required: [true, 'Please provide phone number'],
     },
     passwordToken: String,

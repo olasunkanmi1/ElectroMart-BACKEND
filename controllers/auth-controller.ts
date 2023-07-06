@@ -17,9 +17,11 @@ const register: ControllerFunction = async (req, res) => {
         throw new BadRequestError('please provide all values');
     }
 
-    const  userAlreadyExists = await User.findOne({ email });
+    const  userAlreadyExists = await User.findOne({ 
+        $or: [{ email }, { phoneNo }] 
+    });
     if(userAlreadyExists) {
-        throw new ConflictError('Email already exist');
+        throw new ConflictError('Email/Phone-No already exist');
     }
 
     // first registered user is an admin
@@ -72,7 +74,7 @@ const login: ControllerFunction = async (req, res) => {
     }    
 
     const user = await User.findOne({ 
-        $or: [{ email: email_or_phoneNumber }, { phoneNo: parseInt(email_or_phoneNumber) }] 
+        $or: [{ email: email_or_phoneNumber }, { phoneNo: email_or_phoneNumber }] 
     }).select('+password');
     if(!user) {
       throw new UnAuthenticatedError('Invalid Credentials');

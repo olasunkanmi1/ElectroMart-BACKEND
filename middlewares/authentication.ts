@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { JwtPayload } from 'jsonwebtoken';
-import { UnAuthenticatedError } from "../errors";
+import { UnAuthenticatedError, UnAuthorizededError } from "../errors";
 import { User as UserObject } from '../types';
 import User from '../models/User';
 import { isTokenValid } from '../utils';
@@ -29,18 +29,25 @@ const authenticateUser = async (req: Request, res: Response, next: NextFunction)
     try {
         const { userId } = isTokenValid(token) as JwtPayload;
         const user = await User.findOne({ _id: userId });
-        
-        if(user) {
-            const obj = userObj(user);
-            req.user = { ...obj, userId: user._id };
-        } else {
+        if (!user) {
             throw new UnAuthenticatedError('Authentication Invalid');
         }
+        
+        const obj = userObj(user);
+        req.user = { ...obj, userId: user._id };
 
         next();
     } catch (error) {
         throw new UnAuthenticatedError('Authentication Invalid');
     }
-}
+};
 
-export { authenticateUser, userObj }
+const authorizePermissions = (req: Request, res: Response, next: NextFunction) => {
+      if (!req.user?.isAdmin) {
+        throw new UnAuthorizededError('Unauthorized to access this route');
+      }
+      
+      next();
+};
+
+export { authenticateUser, userObj, authorizePermissions }
