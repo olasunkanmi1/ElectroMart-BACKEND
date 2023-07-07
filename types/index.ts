@@ -1,4 +1,4 @@
-import { Types } from 'mongoose';
+import { Types, Document } from 'mongoose';
 import { Request, Response } from 'express';
 
 export interface CustomError extends Error {
@@ -70,3 +70,27 @@ export interface SendVerificationEmailProps {
 }
 
 export type ControllerFunction = (req: Request, res: Response) => Promise<any>;
+
+export interface ProductModel {
+    _id: Types.ObjectId;
+    name: string;
+    price: number;
+    description: string;
+    images: string[];
+    category: 'smartwatches' | 'computing' | 'drones' | 'gaming' | 'phonesAndTabs' | 'televisions' | 'audio' | 'photography' | 'homeAppliances';
+    brand: string;
+    featured: boolean;
+    QuantityInStock: number;
+    averageRating: number;
+    numOfReviews: number;
+    discount: number;
+    createdBy: Types.ObjectId;
+}
+
+export interface ReviewModel {
+    rating: number;
+    title: string;
+    comment: string;
+    createdBy: Types.ObjectId;
+    product: Types.ObjectId;
+}

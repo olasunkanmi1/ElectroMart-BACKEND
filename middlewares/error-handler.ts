@@ -7,7 +7,8 @@ const errorHandlerMiddleware = (err: CustomError, req: Request, res: Response, n
     // set default error
     let defaultError = {
         statusCode: err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
-        msg: err.message || 'Something went wrong. Try again later'
+        msg: err.message || 'Something went wrong. Try again later',
+        stack: process.env.NODE_ENV === "production" ? null : err.stack,
     };
 
     if(err.name === "ValidationError") {
@@ -25,7 +26,7 @@ const errorHandlerMiddleware = (err: CustomError, req: Request, res: Response, n
         defaultError.statusCode = StatusCodes.BAD_REQUEST;
     }
 
-    return res.status(defaultError.statusCode).json({ msg: defaultError.msg })
+    return res.status(defaultError.statusCode).json({ msg: defaultError.msg, stack: defaultError.stack })
 }
 
 export default errorHandlerMiddleware
