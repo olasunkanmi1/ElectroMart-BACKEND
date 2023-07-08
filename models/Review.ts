@@ -16,12 +16,12 @@ const ReviewSchema = new Schema<ReviewModel>({
   },
   comment: {
     type: String,
-    required: [true, 'Please provide review text'],
+    required: [true, 'Please provide review comment'],
   },
   createdBy: {
     type: SchemaTypes.ObjectId,
     ref: 'User',
-    required: true,
+    required: [true, 'Please provide the user who created the review'],
   },
   product: {
     type: SchemaTypes.ObjectId,
@@ -32,7 +32,9 @@ const ReviewSchema = new Schema<ReviewModel>({
     timestamps: true 
 });
 
-ReviewSchema.index({ product: 1, user: 1 }, { unique: true });
+// Create a compound index on the product and createdBy fields in the Review 
+// collection to ensure that each user can only submit one review per product.
+ReviewSchema.index({ product: 1, createdBy: 1 }, { unique: true });
 
 // ReviewSchema.statics.calculateAverageRating = async function (productId) {
 //   const result = await this.aggregate([

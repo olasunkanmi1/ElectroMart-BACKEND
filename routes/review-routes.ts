@@ -4,11 +4,12 @@ import { authenticateUser, authorizePermissions } from '../middlewares'
 
 const router = express.Router();
 
-router.route('/').post(authenticateUser, createReview).get(getAllReviews);
+router.route('/').post(authenticateUser, createReview)
+  .get([authenticateUser, authorizePermissions], getAllReviews);
 
 router
   .route('/:id')
-  .get(getSingleReview)
+  .get(authenticateUser, getSingleReview)
   .patch(authenticateUser, updateReview)
   .delete(authenticateUser, deleteReview);
 

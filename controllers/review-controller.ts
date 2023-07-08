@@ -17,7 +17,7 @@ const createReview: ControllerFunction = async (req, res) => {
 
   const alreadySubmitted = await Review.findOne({
     product: productId,
-    user: req.user?.userId,
+    createdBy: req.user?.userId,
   });
 
   if (alreadySubmitted) {
@@ -26,7 +26,7 @@ const createReview: ControllerFunction = async (req, res) => {
     );
   }
 
-  req.body.user = req.user?.userId;
+  req.body.createdBy = req.user?.userId;
   const review = await Review.create(req.body);
   res.status(StatusCodes.CREATED).json({ review });
 };
@@ -35,7 +35,7 @@ const createReview: ControllerFunction = async (req, res) => {
 const getAllReviews: ControllerFunction = async (req, res) => {
     const reviews = await Review.find({}).populate({
         path: 'product',
-        select: 'name company price',
+        select: 'name brand price',
     });
 
     res.status(StatusCodes.OK).json({ reviews, count: reviews.length });
@@ -45,22 +45,21 @@ const getAllReviews: ControllerFunction = async (req, res) => {
 const getSingleReview: ControllerFunction = async (req, res) => {
     const { id: reviewId } = req.params;
 
-    const review = await Review.findOne({ _id: reviewId });
-
+    const review = await Review.findOne({ _id: reviewId }).populate('createdBy')
     if (!review) {
         throw new NotFoundError(`No review with id ${reviewId}`);
     }
 
+    checkPermissions({ requestUser: req.user, resourceUserId: review.createdBy._id });
     res.status(StatusCodes.OK).json({ review });
 };
 
 // update review
 const updateReview: ControllerFunction = async (req, res) => {
-    const { id: reviewId } = req.params;
+  const { id: reviewId } = req.params;
   const { rating, title, comment } = req.body;
 
   const review = await Review.findOne({ _id: reviewId });
-
   if (!review) {
     throw new NotFoundError(`No review with id ${reviewId}`);
   }
@@ -75,11 +74,11 @@ const updateReview: ControllerFunction = async (req, res) => {
   res.status(StatusCodes.OK).json({ review });
 };
 
-// delete product
+// delete review
 const deleteReview: ControllerFunction = async (req, res) => {
     const { id: reviewId } = req.params;
 
-    const review = await Review.findOneAndDelete({ _id: reviewId });
+    const review = await Review.findByIdAndDelete(reviewId);
     if (!review) {
         throw new NotFoundError(`No review with id ${reviewId}`);
     }
@@ -88,7 +87,7 @@ const deleteReview: ControllerFunction = async (req, res) => {
     res.status(StatusCodes.OK).json({ msg: 'Success! Review removed' });
 };
 
-// upload image
+// get single product reviews
 const getSingleProductReviews: ControllerFunction = async (req, res) => {
     const { id: productId } = req.params;
     const reviews = await Review.find({ product: productId });

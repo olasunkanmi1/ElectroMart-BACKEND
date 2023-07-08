@@ -17,7 +17,7 @@ import { errorHandlerMiddleware, notFoundMiddleware, authenticateUser } from './
 import connectDB from './db/connect';
 
 // routes
-import { authenticationRouter, userRouter, productRouter } from './routes'
+import { authenticationRouter, userRouter, productRouter, reviewRouter } from './routes'
 
 const app = express();
 dotenv.config();
@@ -57,6 +57,7 @@ app.get('/', (req, res) => res.send('<h3> Insight Nest! </h3>'))
 app.use('/api/v1/auth', authenticationRouter)
 app.use('/api/v1/user', authenticateUser, userRouter)
 app.use('/api/v1/product', productRouter)
+app.use('/api/v1/review', reviewRouter)
 
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)
