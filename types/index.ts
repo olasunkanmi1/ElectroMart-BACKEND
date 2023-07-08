@@ -94,3 +94,28 @@ export interface ReviewModel {
     createdBy: Types.ObjectId;
     product: Types.ObjectId;
 }
+
+export interface SingleOrderItemModel {
+    name: string;
+    image: string;
+    price: number;
+    amount: number;
+    product: Types.ObjectId;
+}
+
+export interface OrderModel {
+    tax: number;
+    shippingFee: number;
+    subtotal: number;
+    total: number;
+    orderItems: SingleOrderItemModel[];
+    status: 'pending' | 'failed' | 'paid' | 'delivered' | 'canceled';
+    user: Types.ObjectId;
+    clientSecret: string;
+    paymentIntentId: string;
+}
+
+export interface FakeStripeAPIProps {
+    amount: number;
+    currency: string;
+}
