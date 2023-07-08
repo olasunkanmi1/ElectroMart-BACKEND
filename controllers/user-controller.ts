@@ -1,6 +1,8 @@
+import { model } from 'mongoose';
 import { StatusCodes } from 'http-status-codes';
 import { ControllerFunction, User as UserType } from '../types';
 import User from '../models/User';
+import Product from '../models/Product';
 import { BadRequestError, UnAuthenticatedError, ConflictError, NotFoundError } from '../errors';
 import { checkPermissions, generateCode } from '../utils';
 import { userObj } from '../middlewares';
@@ -86,4 +88,72 @@ const updateUser: ControllerFunction = async (req, res) => {
     res.status(StatusCodes.OK).json({ user: obj, msg: 'Profile updated successfully' });
 };
 
-export { showCurrentUser, updateUserPassword, updateUser, getAllUsers, getSingleUser }
+// save product
+const saveProduct: ControllerFunction = async (req, res) => {
+    const { productId } = req.body;
+    if (!productId) {
+        throw new BadRequestError('Please provide productId');
+    }
+
+    const product = await Product.findById(productId);
+    const user = await User.findById(req.user?.userId);
+
+    if (!product) {
+        throw new NotFoundError(`No product with id : ${productId}`);
+    }
+    if (!user) {
+        throw new UnAuthenticatedError('Authentication Invalid');
+    }
+
+    // check for duplicate saving of the same product
+    const isProductAlreadySaved = user.favorites.includes(productId);
+    if(isProductAlreadySaved) {
+      throw new ConflictError('Product already saved by user');
+    }
+
+    user.favorites.push(productId);
+    await user.save();
+
+    res.status(StatusCodes.OK).json({ msg: 'Success! Product added to favorites.' });
+};
+
+// get saved products
+const getSavedProducts: ControllerFunction = async (req, res) => {
+    const user =  await User.findById(req.user?.userId).populate('favorites');
+    if (!user) {
+        throw new UnAuthenticatedError('Authentication Invalid');
+    }
+
+    const savedProducts =  user?.favorites;
+
+    res.status(StatusCodes.OK).json({ savedProducts });
+};
+
+// remove saved product
+const unsaveProduct: ControllerFunction = async (req, res) => {
+    const { id } = req.params;
+
+    const user = await User.findByIdAndUpdate(req.user?.userId, { 
+        $pull: { favorites: id } 
+    });
+
+    if (!user) {
+        throw new UnAuthenticatedError('Authentication Invalid');
+    }
+    res.status(StatusCodes.OK).json({ msg: 'Success! Product unsaved.' });
+}
+
+// remove all saved products
+const unsaveAllProducts: ControllerFunction = async (req, res) => {
+    const user = await User.findByIdAndUpdate(req.user?.userId, { favorites: [] });
+    if (!user) {
+        throw new UnAuthenticatedError('Authentication Invalid');
+    }
+
+    res.status(StatusCodes.OK).json({ msg: 'Success! All products unsaved.' });
+}
+
+export { 
+    showCurrentUser, updateUserPassword, updateUser, getAllUsers, 
+    getSingleUser, saveProduct, getSavedProducts, unsaveProduct, unsaveAllProducts
+}

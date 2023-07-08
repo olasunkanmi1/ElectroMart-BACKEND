@@ -30,6 +30,7 @@ export interface UserModel  extends  User {
     passwordToken: string;
     passwordTokenExpirationDate: Date | null;
     comparePassword(candidatePassword: string): Promise<boolean>;
+    favorites: [Types.ObjectId];
 }
 
 export interface CheckPermissionsProps {
@@ -72,7 +73,6 @@ export interface SendVerificationEmailProps {
 export type ControllerFunction = (req: Request, res: Response) => Promise<any>;
 
 export interface ProductModel {
-    _id: Types.ObjectId;
     name: string;
     price: number;
     description: string;

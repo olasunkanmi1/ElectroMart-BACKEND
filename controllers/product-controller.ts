@@ -1,9 +1,7 @@
-import { model } from 'mongoose';
 import { StatusCodes } from 'http-status-codes';
 import { ControllerFunction } from '../types';
 import Product from '../models/Product';
-import { BadRequestError, NotFoundError, ConflictError } from '../errors';
-import { checkPermissions } from '../utils';
+import { BadRequestError, NotFoundError } from '../errors';
 
 // create product
 const createProduct: ControllerFunction = async (req, res) => {
@@ -87,49 +85,7 @@ const uploadImage: ControllerFunction = async (req, res) => {
     res.status(StatusCodes.OK).json({ msg: 'ok' });
 };
 
-// save product
-const saveProduct: ControllerFunction = async (req, res) => {
-    const productAlreadySaved = await Product.findOne({ user: req.user?.userId, externalID: req.body.externalID });
-    if(productAlreadySaved) {
-      throw new ConflictError('Product already saved by user');
-    }
-    
-    req.body.user = req.user?.userId
-    const product = await Product.create(req.body)
-    res.status(StatusCodes.OK).json({ product });
-};
-
-// get saved products
-const getSavedProducts: ControllerFunction = async (req, res) => {
-    const savedProducts =  await Product.find({ user: req.user?.userId })
-    res.status(StatusCodes.OK).json({ savedProducts });
-};
-
-// remove saved product
-const unsaveProduct: ControllerFunction = async (req, res) => {
-    const { externalID } = req.params;
-
-    const product = await Product.findOne({ externalID });
-    if(!product) {
-        throw new NotFoundError(`No product with externalID: ${externalID}`)
-    }
-
-    checkPermissions({ requestUser: req.user, resourceUserId: product.createdBy })
-
-    await product.deleteOne();
-    res.status(StatusCodes.OK).json({ msg: 'Success! Product removed.' });
-}
-
-// remove all saved properties
-const unsaveAllProducts: ControllerFunction = async (req, res) => {
-    const product = model('Product');
-    
-    await product.deleteMany({ user: req.user?.userId });
-    res.status(StatusCodes.OK).json({ msg: 'Success! All Saved Productss removed.' });
-}
-
 export { 
     createProduct, getAllProducts, getSingleProduct, 
     updateProduct, deleteProduct, uploadImage,
-    saveProduct, getSavedProducts, unsaveProduct, unsaveAllProducts
 }

@@ -1,9 +1,7 @@
 import express from 'express';
 import { 
     createProduct, getAllProducts, getSingleProduct, 
-    updateProduct, deleteProduct, uploadImage,
-    saveProduct, getSavedProducts, unsaveProduct, unsaveAllProducts, 
-    getSingleProductReviews 
+    updateProduct, deleteProduct, uploadImage, getSingleProductReviews 
 } from '../controllers'
 import { authenticateUser, authorizePermissions } from '../middlewares'
 
@@ -23,6 +21,4 @@ router.route('/:id')
 
 router.route('/:id/reviews').get(getSingleProductReviews);
 
-router.route('/save').post(saveProduct).get(getSavedProducts).delete(unsaveAllProducts)
-router.route('/save/:externalID').delete(unsaveProduct)
 export default router

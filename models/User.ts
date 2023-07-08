@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, SchemaTypes } from "mongoose";
 import isEmail from 'validator/lib/isEmail';
 import bcrypt from "bcryptjs";
 import { UserModel } from '../types'
@@ -49,7 +49,15 @@ const UserSchema = new Schema<UserModel>({
         required: [true, 'Please provide phone number'],
     },
     passwordToken: String,
-    passwordTokenExpirationDate: {} //empty object {} means same as Schema.Types.Mixed i.e a mixed type 
+    passwordTokenExpirationDate: {}, //empty object {} means same as Schema.Types.Mixed i.e a mixed type 
+    favorites: {
+        type: [
+          {
+            type: SchemaTypes.ObjectId,
+            ref: "Product",
+          },
+        ],
+    },
 }, {
     timestamps: true,
 });
