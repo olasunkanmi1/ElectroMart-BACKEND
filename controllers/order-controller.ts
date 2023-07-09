@@ -10,6 +10,7 @@ const fakeStripeAPI = async ({ amount, currency }: FakeStripeAPIProps) => {
     return { client_secret, amount };
 };
 
+// create order
 const createOrder: ControllerFunction = async (req, res) => {
     const { items: cartItems, tax, shippingFee } = req.body;
   
@@ -26,9 +27,7 @@ const createOrder: ControllerFunction = async (req, res) => {
     for (const item of cartItems) {
       const dbProduct = await Product.findOne({ _id: item.product });
       if (!dbProduct) {
-        throw new NotFoundError(
-          `No product with id : ${item.product}`
-        );
+        throw new NotFoundError(`No product with id : ${item.product}`);
       }
       const { name, price, images, _id } = dbProduct;
       const singleOrderItem = {
@@ -58,7 +57,7 @@ const createOrder: ControllerFunction = async (req, res) => {
       tax,
       shippingFee,
       clientSecret: paymentIntent.client_secret,
-      user: req.user?.userId,
+      createdBy: req.user?.userId,
     });
   
     res
@@ -66,26 +65,30 @@ const createOrder: ControllerFunction = async (req, res) => {
       .json({ order, clientSecret: order.clientSecret });
 };
 
+// get all orders
 const getAllOrders: ControllerFunction = async (req, res) => {
     const orders = await Order.find({});
     res.status(StatusCodes.OK).json({ orders, count: orders.length });
 };
 
+// get single order
 const getSingleOrder: ControllerFunction = async (req, res) => {
     const { id: orderId } = req.params;
     const order = await Order.findOne({ _id: orderId });
     if (!order) {
       throw new NotFoundError(`No order with id : ${orderId}`);
     }
-    checkPermissions({ requestUser: req.user, resourceUserId: order.user });
+    checkPermissions({ requestUser: req.user, resourceUserId: order.createdBy });
     res.status(StatusCodes.OK).json({ order });
 };
 
+// get current user orders
 const getCurrentUserOrders: ControllerFunction = async (req, res) => {
-    const orders = await Order.find({ user: req.user?.userId });
+    const orders = await Order.find({ createdBy: req.user?.userId });
     res.status(StatusCodes.OK).json({ orders, count: orders.length });
 };
 
+// update order
 const updateOrder: ControllerFunction = async (req, res) => {
     const { id: orderId } = req.params;
     const { paymentIntentId } = req.body;
@@ -94,7 +97,7 @@ const updateOrder: ControllerFunction = async (req, res) => {
     if (!order) {
       throw new NotFoundError(`No order with id : ${orderId}`);
     }
-    checkPermissions({ requestUser: req.user, resourceUserId: order.user });
+    checkPermissions({ requestUser: req.user, resourceUserId: order.createdBy });
   
     order.paymentIntentId = paymentIntentId;
     order.status = 'paid';

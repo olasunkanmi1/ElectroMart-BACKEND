@@ -36,7 +36,7 @@ const OrderSchema = new Schema<OrderModel>({
         enum: ['pending', 'failed', 'paid', 'delivered', 'canceled'],
         default: 'pending',
       },
-      user: {
+      createdBy: {
         type: SchemaTypes.ObjectId,
         ref: 'User',
         required: true,

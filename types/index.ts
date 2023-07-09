@@ -110,7 +110,7 @@ export interface OrderModel {
     total: number;
     orderItems: SingleOrderItemModel[];
     status: 'pending' | 'failed' | 'paid' | 'delivered' | 'canceled';
-    user: Types.ObjectId;
+    createdBy: Types.ObjectId;
     clientSecret: string;
     paymentIntentId: string;
 }

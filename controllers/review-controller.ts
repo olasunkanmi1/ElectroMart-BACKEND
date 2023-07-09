@@ -78,7 +78,7 @@ const updateReview: ControllerFunction = async (req, res) => {
 const deleteReview: ControllerFunction = async (req, res) => {
     const { id: reviewId } = req.params;
 
-    const review = await Review.findByIdAndDelete(reviewId);
+    const review = await Review.findOneAndDelete({ _id: reviewId });
     if (!review) {
         throw new NotFoundError(`No review with id ${reviewId}`);
     }

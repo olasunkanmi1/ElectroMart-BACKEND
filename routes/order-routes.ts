@@ -12,7 +12,7 @@ router
   .post(createOrder)
   .get(authorizePermissions, getAllOrders);
 
-router.route('/showAllMyOrders').get(getCurrentUserOrders);
+router.route('/show-my-orders').get(getCurrentUserOrders);
 
 router
   .route('/:id')
