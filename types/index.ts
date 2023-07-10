@@ -119,3 +119,8 @@ export interface FakeStripeAPIProps {
     amount: number;
     currency: string;
 }
+
+export interface FlashSalesModel {
+    startDate: Date;
+    endDate: Date;
+}
