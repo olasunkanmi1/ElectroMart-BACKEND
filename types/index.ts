@@ -124,3 +124,12 @@ export interface FlashSalesModel {
     startDate: Date;
     endDate: Date;
 }
+
+export interface QueryObject {
+    category?: string;
+    featured?: boolean;
+    brand?: string;
+    name?: string;
+    sort?: string;
+    fields?: string;
+}

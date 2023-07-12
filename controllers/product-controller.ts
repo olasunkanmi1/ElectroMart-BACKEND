@@ -1,7 +1,10 @@
 import { StatusCodes } from 'http-status-codes';
-import { ControllerFunction } from '../types';
+import { ControllerFunction, QueryObject } from '../types';
 import Product from '../models/Product';
 import { BadRequestError, NotFoundError } from '../errors';
+import {v2 as cloudinary} from 'cloudinary';
+import fs from 'fs';
+import { UploadedFile } from 'express-fileupload';
 
 // create product
 const createProduct: ControllerFunction = async (req, res) => {
@@ -22,9 +25,29 @@ const createProduct: ControllerFunction = async (req, res) => {
   
 // get all products
 const getAllProducts: ControllerFunction = async (req, res) => {
-    const products = await Product.find({});
+    const { category, featured, brand, name, sort, fields, numericFilters }  = req.query;
+    const queryObject: QueryObject = {};
 
-    res.status(StatusCodes.OK).json({ products, quantity: products.length });
+    if(category) {
+        queryObject.category = category.toString()
+    }
+
+    if(featured) {
+        queryObject.featured = featured === 'true' ? true : false
+    }
+
+    if(brand) {
+        queryObject.brand = brand.toString()
+    }
+
+    // if(name) {
+    //     // i = case insensitive -- returns any product where the input letter appears
+    //     queryObject.name = { $regex: name.toString(), $options: 'i'}
+    // }
+    let result = Product.find(queryObject);
+
+    const products = await result
+    res.status(StatusCodes.OK).json({ products, nbHits: products.length });
 };
 
 // get single product
@@ -82,7 +105,25 @@ const deleteProduct: ControllerFunction = async (req, res) => {
 
 // upload image
 const uploadImage: ControllerFunction = async (req, res) => {
-    res.status(StatusCodes.OK).json({ msg: 'ok' });
+    const uploadedImages = req.files?.images as UploadedFile[];
+    if (!uploadedImages) {
+        throw new BadRequestError('Please provide images');
+    }
+
+    let imagesSrc: string[] = [];
+
+    for(const image of uploadedImages) {
+        const result = await cloudinary.uploader.upload(image.tempFilePath, {
+            use_filename: true,
+            folder: 'electromart',
+            upload_preset: 'electro-mart'
+        });
+
+        imagesSrc.push(result.secure_url);
+        fs.unlinkSync(image.tempFilePath); //remove tmp files
+    }
+
+    return res.status(StatusCodes.OK).json({ images: imagesSrc });
 };
 
 export { 

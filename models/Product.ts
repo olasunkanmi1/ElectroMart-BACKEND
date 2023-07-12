@@ -4,14 +4,14 @@ import { NextFunction } from 'express'
 
 const categoryBrands: Record<string, string[]> = {
     smartwatches: ['apple', 'fitbit', 'samsung'],
-    computing: ['hp', 'lenovo', 'dell'],
+    computing: ['hp', 'lenovo', 'apple'],
     drones: ['dji', 'parrot', 'autel'],
-    gaming: ['sony', 'microsoft', 'nintendo'],
-    phonesAndTabs: ['iphone', 'samsung', 'google'],
-    televisions: ['lg', 'samsung', 'sony'],
-    audio: ['bose', 'sony', 'jbl'],
+    gaming: ['sony', 'xbox', 'nintendo'],
+    phonesAndTabs: ['apple', 'samsung', 'google'],
+    televisions: ['lg', 'samsung', 'hisense'],
+    audio: ['apple', 'beats', 'jbl'],
     photography: ['nikon', 'canon', 'sony'],
-    homeAppliances: ['lg', 'samsung', 'whirlpool'],
+    homeAppliances: ['lg', 'samsung', 'ninja'],
 };
 
 const ProductSchema = new Schema<ProductModel>({
@@ -19,7 +19,7 @@ const ProductSchema = new Schema<ProductModel>({
         type: String,
         trim: true,
         required: [true, 'Please provide product name'],
-        maxlength: [100, 'Name can not be more than 100 characters'],
+        maxlength: [1000, 'Name can not be more than 100 characters'],
       },
       price: {
         type: Number,
@@ -29,7 +29,7 @@ const ProductSchema = new Schema<ProductModel>({
       description: {
         type: String,
         required: [true, 'Please provide product description'],
-        maxlength: [1000, 'Description can not be more than 1000 characters'],
+        maxlength: [10000, 'Description can not be more than 1000 characters'],
       },
       images: {
         type: [String],
