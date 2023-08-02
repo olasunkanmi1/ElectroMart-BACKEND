@@ -57,7 +57,7 @@ const getAllProducts: ControllerFunction = async (req, res) => {
     let result = Product.find(queryObject);
     
     if (sort) {
-        const sortOrder = sort === 'asc' ? 1 : sort === 'desc' ? -1 : 'featured';
+        const sortOrder = sort === 'price-asc' ? 1 : sort === 'price-desc' ? -1 : 'featured';
 
         if(sortOrder === 'featured') {
             result = result.sort({ featured: -1 });
