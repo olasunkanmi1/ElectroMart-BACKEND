@@ -1,4 +1,4 @@
-import sendEmail from "./send-email.js"
+import sendEmail from "./send-email"
 import ejs from 'ejs'
 import { SendVerificationEmailProps } from '@types';
 

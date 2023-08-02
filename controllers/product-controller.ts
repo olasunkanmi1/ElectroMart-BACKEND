@@ -25,7 +25,7 @@ const createProduct: ControllerFunction = async (req, res) => {
   
 // get all products
 const getAllProducts: ControllerFunction = async (req, res) => {
-    const { category, featured, brand, name, sort, fields, numericFilters }  = req.query;
+    const { category, featured, brand, discount, rating, name, sort, numericFilters }  = req.query;
     const queryObject: QueryObject = {};
 
     if(category) {
@@ -39,12 +39,33 @@ const getAllProducts: ControllerFunction = async (req, res) => {
     if(brand) {
         queryObject.brand = brand.toString()
     }
-
+    
+    if(discount) {
+        const discountValue = parseInt(discount.toString());
+        queryObject.discount = { $gte: discountValue };
+    }
+    
+    if(rating) {
+        const ratingValue = parseInt(rating.toString());
+        queryObject.rating = { $gte: ratingValue };
+    }
+    
     // if(name) {
     //     // i = case insensitive -- returns any product where the input letter appears
     //     queryObject.name = { $regex: name.toString(), $options: 'i'}
     // }
     let result = Product.find(queryObject);
+    
+    if (sort) {
+        const sortOrder = sort === 'asc' ? 1 : sort === 'desc' ? -1 : 'featured';
+
+        if(sortOrder === 'featured') {
+            result = result.sort({ featured: -1 });
+        } else {
+            // Handle sorting by price (numeric sorting)
+            result = result.sort({ price: sortOrder });
+        }
+    }
 
     const products = await result
     res.status(StatusCodes.OK).json({ products, nbHits: products.length });

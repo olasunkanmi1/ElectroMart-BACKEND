@@ -129,7 +129,9 @@ export interface QueryObject {
     category?: string;
     featured?: boolean;
     brand?: string;
-    name?: string;
+    discount?: { $gte: number };
+    rating?: { $gte: number };
+    name?: { $regex: string; $options: string };
     sort?: string;
     fields?: string;
 }
