@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Request, Response }  from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
 import  'express-async-errors'
@@ -52,7 +52,7 @@ app.use(helmet());
 app.use(mongoSanitize());
 app.use(cookieParser(process.env.JWT_SECRET));
 
-app.get('/', (req, res) => res.send('<h3> Insight Nest! </h3>'))
+app.get('/', (req: Request, res: Response) => res.send('<h3> Insight Nest! </h3>'))
 
 app.use('/api/v1/auth', authenticationRouter)
 app.use('/api/v1/user', authenticateUser, userRouter)

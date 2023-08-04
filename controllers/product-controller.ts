@@ -42,7 +42,11 @@ const getAllProducts: ControllerFunction = async (req, res) => {
     
     if(discount) {
         const discountValue = parseInt(discount.toString());
-        queryObject.discount = { $gte: discountValue };
+        if(discountValue === 0) {
+            queryObject.discount = { $lte: 9 };
+        } else {
+            queryObject.discount = { $gte: discountValue };
+        }
     }
     
     if(rating) {

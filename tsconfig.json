@@ -8,7 +8,7 @@
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "esModuleInterop": true,
-    "module": "CommonJS",
+    "module": "ES2022",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
