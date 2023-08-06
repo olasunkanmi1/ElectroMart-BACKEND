@@ -10,7 +10,7 @@ import { UploadedFile } from 'express-fileupload';
 const createProduct: ControllerFunction = async (req, res) => {
     const { 
         name, price, description, images, 
-        category, brand, QuantityInStock 
+        category, brand, QuantityInStock, discount
     } = req.body;
 
     if(!name || !price || !description || !images || !category || !brand || !QuantityInStock ) {
@@ -18,6 +18,7 @@ const createProduct: ControllerFunction = async (req, res) => {
     }
 
     req.body.createdBy = req.user?.userId;
+    req.body.newPrice = parseFloat( (price - ((discount || 0 / 100) * price)).toFixed(2) );
     const product = await Product.create(req.body)
 
     res.status(StatusCodes.CREATED).json({ product });
@@ -25,7 +26,7 @@ const createProduct: ControllerFunction = async (req, res) => {
   
 // get all products
 const getAllProducts: ControllerFunction = async (req, res) => {
-    const { category, featured, brand, discount, rating, name, sort, numericFilters }  = req.query;
+    const { category, featured, brand, discount, rating, name, sort }  = req.query;
     const queryObject: QueryObject = {};
 
     if(category) {
@@ -67,7 +68,7 @@ const getAllProducts: ControllerFunction = async (req, res) => {
             result = result.sort({ featured: -1 });
         } else {
             // Handle sorting by price (numeric sorting)
-            result = result.sort({ price: sortOrder });
+            result = result.sort({ newPrice: sortOrder });
         }
     }
 

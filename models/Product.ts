@@ -26,6 +26,9 @@ const ProductSchema = new Schema<ProductModel>({
         required: [true, 'Please provide product price'],
         default: 0,
       },
+      newPrice: {
+        type: Number,
+      },
       description: {
         type: String,
         required: [true, 'Please provide product description'],

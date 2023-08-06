@@ -85,6 +85,7 @@ export interface ProductModel {
     numOfReviews: number;
     discount: number;
     createdBy: Types.ObjectId;
+    newPrice: number;
 }
 
 export interface ReviewModel {
