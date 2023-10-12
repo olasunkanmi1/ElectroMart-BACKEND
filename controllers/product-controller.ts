@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
-import { ControllerFunction, QueryObject } from '../types';
+import { ControllerFunction, ProductModel, QueryObject } from '../types';
 import Product from '../models/Product';
 import { BadRequestError, NotFoundError } from '../errors';
 import {v2 as cloudinary} from 'cloudinary';
@@ -23,57 +23,65 @@ const createProduct: ControllerFunction = async (req, res) => {
 
     res.status(StatusCodes.CREATED).json({ product });
 };
-  
+
+// shuffle products
+const shuffleProducts = (products: ProductModel[]) => {
+    for (let i = products.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [products[i], products[j]] = [products[j], products[i]];
+    }
+    return products;
+};
+
 // get all products
 const getAllProducts: ControllerFunction = async (req, res) => {
-    const { category, featured, brand, discount, rating, name, sort }  = req.query;
-    const queryObject: QueryObject = {};
+    const { category, homepage, brand, discount, rating, name, sort }  = req.query;
 
-    if(category) {
-        queryObject.category = category.toString()
-    }
-
-    if(featured) {
-        queryObject.featured = featured === 'true' ? true : false
-    }
-
-    if(brand) {
-        queryObject.brand = brand.toString()
-    }
-    
-    if(discount) {
-        const discountValue = parseInt(discount.toString());
-        if(discountValue === 0) {
-            queryObject.discount = { $lte: 9 };
-        } else {
-            queryObject.discount = { $gte: discountValue };
+    if(homepage && category) {
+        const products = await Product.find({ category: category.toString(), featured: true });
+        res.status(StatusCodes.OK).json({ products });
+    } else {
+        const queryObject: QueryObject = {};
+        
+        if(category) queryObject.category = category.toString();
+        if(brand) queryObject.brand = brand.toString();
+        
+        if(discount) {
+            const discountValue = parseInt(discount.toString());
+            queryObject.discount = discountValue === 0 ? { $lte: 9 } : { $gte: discountValue };
         }
-    }
+        
+        if(rating) {
+            const ratingValue = parseInt(rating.toString());
+            queryObject.rating = { $gte: ratingValue };
+        }
+        
+        // if(name) {
+        //     // i = case insensitive -- returns any product where the input letter appears
+        //     queryObject.name = { $regex: name.toString(), $options: 'i'}
+        // }        
+        
+        if (!sort && !homepage) {
+            throw new BadRequestError('please provide a sort value');
+        }
+        
+        let result = Product.find(queryObject);    
+        let products: ProductModel[] = [];
     
-    if(rating) {
-        const ratingValue = parseInt(rating.toString());
-        queryObject.rating = { $gte: ratingValue };
-    }
-    
-    // if(name) {
-    //     // i = case insensitive -- returns any product where the input letter appears
-    //     queryObject.name = { $regex: name.toString(), $options: 'i'}
-    // }
-    let result = Product.find(queryObject);
-    
-    if (sort) {
-        const sortOrder = sort === 'price-asc' ? 1 : sort === 'price-desc' ? -1 : 'featured';
-
-        if(sortOrder === 'featured') {
-            result = result.sort({ featured: -1 });
+        if(sort === 'featured') {
+            const featuredResult = Product.find({...queryObject, featured: true});
+            const nonFeaturedResult = Product.find({...queryObject, featured: false});
+            const featuredProducts = await featuredResult;
+            const nonFeaturedProducts = await nonFeaturedResult;
+            
+            products = [...shuffleProducts(featuredProducts), ...shuffleProducts(nonFeaturedProducts)];
         } else {
             // Handle sorting by price (numeric sorting)
-            result = result.sort({ newPrice: sortOrder });
+            products = await result.sort({ newPrice: sort === 'price-asc' ? 1 : -1 });
         }
-    }
-
-    const products = await result
-    res.status(StatusCodes.OK).json({ products, nbHits: products.length });
+    
+        res.status(StatusCodes.OK).json({ products: products, nbHits: products.length });
+    };
 };
 
 // get single product
